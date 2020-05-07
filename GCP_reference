@@ -1,0 +1,55 @@
+Google compute engine authentication (SSH shell) to bucket.
+
+ref: https://www.youtube.com/watch?v=tSnzoW4RlaQ
+Command:
+auth activate-service-account test-account-connection@audit-tie-o
+ut-tool.iam.gserviceaccount.com --key-file Test_connection.json
+
+#####################
+
+Copying files from Bucket to the compute engine using cloud SSH.
+
+gsutil -u audit-tie-out-tool cp gs://audit_storage_bucket1/AUDIT_TIE_OUT_TOOL_key.json .
+
+####################
+
+Push pandas df to Google BigQuery:
+
+df1.to_gbq('new_audit_files2.New_test_table1',  ## dataset_name.table_name
+                 'audit-tie-out-tool', ##Project_ID
+                 chunksize=None,
+                 if_exists='append',
+                 verbose=False
+                 )
+#############################
+Bucket config: enable or disable requesters pay.
+
+gsutil requesterpays set [on|off] bucket_url...
+gsutil requesterpays get bucket_url...  ---> gives the current config.
+
+#################################
+
+write a file to a bucket from Compute engine/local uing Python:
+
+from google.cloud import storage
+
+def upload_blob(bucket_name, source_file_name, destination_blob_name):
+  """Uploads a file to the bucket."""
+  storage_client = storage.Client()
+  bucket = storage_client.get_bucket(bucket_name)
+  blob = bucket.blob(destination_blob_name)
+  blob.upload_from_filename(source_file_name)
+  print('File {} uploaded to {}.'.format(source_file_name,destination_blob_name))
+
+
+  Function Call:
+
+  upload_blob('audit_storage_bucket1',  ## name of the bucket
+              'Dic.csv',                ## source file
+              'abc/abcdTest.csv')           ## destination path and file name to be written,
+######################################################
+
+write a df in compute engine as a csv to storage bucket:
+
+import datalab.storage as gcs
+gcs.Bucket('audit_storage_bucket1').item('aaaaa/abcd.csv').write_to(df.to_csv(),'text/csv')

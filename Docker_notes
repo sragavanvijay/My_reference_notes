@@ -1,0 +1,2 @@
+docker run --rm -it -p 8888:8888 -v /Users/vsam/Documents:/home/jovyan -d  ab72b9c849d5
+docker exec --user root -it 0c8fc367cb8e bash

@@ -1,0 +1,7 @@
+pdftables
+tablua
+pdftotext
+Google VisionAPI to extract data from pdf tables.
+https://cloud.google.com/vision/docs/auth#using_a_service_account
+
+excel to BigQuery

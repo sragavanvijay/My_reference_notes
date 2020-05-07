@@ -1,0 +1,33 @@
+// Create SparkSession with Hive dynamic partitioning enabled
+val spark: SparkSession =
+    SparkSession
+        .builder()
+        .appName("StatsAnalyzer")
+        .enableHiveSupport()
+        .config("hive.exec.dynamic.partition", "true")
+        .config("hive.exec.dynamic.partition.mode", "nonstrict")
+        .getOrCreate()
+// Register the dataframe as a Hive table
+impressionsDF.createOrReplaceTempView("impressions_dataframe")
+// Create the output Hive table
+spark.sql(
+    s"""
+      |CREATE EXTERNAL TABLE stats (
+      |   ad            STRING,
+      |   impressions   INT,
+      |   clicks        INT
+      |) PARTITIONED BY (country STRING, year INT, month INT, day INT)
+      |ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n'
+    """.stripMargin
+)
+// Write the data into disk as Hive partitions
+spark.sql(
+    s"""
+      |INSERT OVERWRITE TABLE stats
+      |PARTITION(country = 'US', year = 2017, month = 3, day)
+      |SELECT ad, SUM(impressions), SUM(clicks), day
+      |FROM impressions_dataframe
+      |GROUP BY ad
+    """.stripMargin
+)
+Spark now writes data partitioned just as Hive would — which means only the partitions that are touched by the INSERT query get overwritten and the others are not touched.
